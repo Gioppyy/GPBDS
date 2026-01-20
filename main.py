@@ -11,11 +11,7 @@ def main():
  \____/\_|   \____/|___/  \____/
 """)
 
-    try:
-        server_path = input_utils.get_arg("--path", "./")
-    except Exception as e:
-        logger.error(str(e))
-
+    server_path = input_utils.get_arg("path", "./")
     logger.info(f"Server path: {server_path}")
 
     logs = []
