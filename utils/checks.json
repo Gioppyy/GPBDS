@@ -1,0 +1,179 @@
+{
+  "rce_critical": {
+    "score": 10,
+    "severity": "CRITICAL",
+    "patterns": [
+      "\\bloadstring\\s*\\(",
+      "\\bload\\s*\\(",
+      "assert\\s*\\(\\s*load",
+      "_G\\s*\\[\\s*[\"']load[\"']\\s*\\]",
+      "_ENV\\s*\\[\\s*[\"']load[\"']\\s*\\]",
+      "getfenv\\s*\\(",
+      "setfenv\\s*\\("
+    ]
+  },
+
+  "network_backdoor": {
+    "score": 8,
+    "severity": "CRITICAL",
+    "patterns": [
+      "RegisterNetEvent",
+      "AddEventHandler",
+      "TriggerServerEvent",
+      "TriggerClientEvent"
+    ]
+  },
+
+  "network_backdoor_suspicious": {
+    "score": 9,
+    "severity": "CRITICAL",
+    "patterns": [
+      "RegisterNetEvent[^)]*admin",
+      "RegisterNetEvent[^)]*backdoor",
+      "RegisterNetEvent[^)]*inject",
+      "TriggerServerEvent[^)]*execute"
+    ]
+  },
+
+  "http_remote": {
+    "score": 6,
+    "severity": "MEDIUM",
+    "patterns": [
+      "PerformHttpRequest\\s*\\([^)]*load",
+      "https?:\\/\\/[^\\s\"']+\\.(lua|txt|dat)\\b"
+    ]
+  },
+
+  "command_execution": {
+    "score": 9,
+    "severity": "CRITICAL",
+    "patterns": [
+      "os\\.execute\\s*\\(",
+      "io\\.popen\\s*\\(",
+      "os\\.popen\\s*\\(",
+      "ExecuteCommand\\s*\\(",
+      "RunCommand\\s*\\(",
+      "shell\\.run\\s*\\(",
+      "jit\\.os",
+      "package\\.loadlib"
+    ]
+  },
+
+  "filesystem_abuse": {
+    "score": 6,
+    "severity": "HIGH",
+    "patterns": [
+      "io\\.open\\s*\\(",
+      "io\\.write\\s*\\(",
+      "os\\.remove\\s*\\(",
+      "os\\.rename\\s*\\("
+    ]
+  },
+
+  "credential_leak": {
+    "score": 7,
+    "severity": "HIGH",
+    "patterns": [
+      "discord\\.com\\/api\\/webhooks\\/\\d+\\/[A-Za-z0-9_-]+",
+      "Authorization:\\s*Bearer",
+      "sv_licenseKey",
+      "mysql://"
+    ]
+  },
+
+  "array_function_call": {
+    "score": 7,
+    "severity": "HIGH",
+    "patterns": [
+      "\\[[^\\]]+\\]\\s*\\([^)]*\\)\\s*\\(\\)",
+      "\\[[^\\]]+\\]\\s*\\("
+    ]
+  },
+
+  "obfuscation": {
+    "score": 4,
+    "severity": "LOW",
+    "patterns": [
+      "(\\\\x[0-9a-fA-F]{2}){5,}",
+      "string\\.char\\s*\\(",
+      "string\\.reverse\\s*\\(",
+      "base64",
+      "(\"[^\"]*\"\\s*\\.\\.\\s*){2,}"
+    ]
+  },
+
+  "REMOTE_CODE_EXEC": {
+    "severity": "CRITICAL",
+    "score": 8,
+    "patterns": [
+      "load\\s*\\(",
+      "loadstring\\s*\\(",
+      "TriggerClientEvent\\s*\\(.*load",
+      "RegisterNetEvent\\s*\\(.*CreateThreadFunction"
+    ]
+  },
+
+  "OS_EXECUTION": {
+    "severity": "CRITICAL",
+    "score": 10,
+    "patterns": [
+      "os\\.execute\\s*\\(",
+      "chmod\\s+[0-9]{3}",
+      "adduser\\s",
+      "passwd\\s",
+      "iptables\\s+-A",
+      "crontab\\s+-l",
+      "apt-get\\s+install"
+    ]
+  },
+
+  "SSH_BACKDOOR": {
+    "severity": "CRITICAL",
+    "score": 10,
+    "patterns": [
+      "ssh\\s+-N\\s+-R",
+      "authorized_keys",
+      "\\.ssh/",
+      "Reverse\\s+Tunnel"
+    ]
+  },
+
+  "DATA_EXFILTRATION": {
+    "severity": "HIGH",
+    "score": 6,
+    "patterns": [
+      "discord\\.com/api/webhooks",
+      "pastebin\\.com/api",
+      "api\\.ipify\\.org"
+    ]
+  },
+
+  "CRON_PERSISTENCE": {
+    "severity": "CRITICAL",
+    "score": 10,
+    "patterns": [
+      "crontab",
+      "\\* \\* \\* \\* \\*",
+      "/dev/tcp/"
+    ]
+  },
+
+  "RESOURCE_INFECTION": {
+    "severity": "HIGH",
+    "score": 8,
+    "patterns": [
+      "GetNumResources\\s*\\(",
+      "GetResourcePath\\s*\\(",
+      "installBackdoorToScripts",
+      "setall\\s*\\("
+    ]
+  },
+
+  "HEX_OBFUSCATION": {
+    "severity": "MEDIUM",
+    "score": 4,
+    "patterns": [
+      "'[0-9a-fA-F]{2}'\\s*,\\s*'[0-9a-fA-F]{2}'"
+    ]
+  }
+}
