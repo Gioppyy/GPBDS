@@ -1,6 +1,7 @@
 from .report_creator import generate_html_report
 from .lua_deobfuscator import LuaDeobfuscator
 from pathlib import Path
+from tqdm import tqdm
 import json
 import html
 import os
@@ -20,10 +21,15 @@ class FolderScanner:
         self._findings = []
 
     def scan(self):
+        files_to_scan = []
+
         for root, _, files in os.walk(self._server_path):
             for f in files:
                 if f.lower().endswith((".lua", ".txt", ".js", ".png")):
-                    self._scan_file(os.path.join(root, f))
+                    files_to_scan.append(os.path.join(root, f))
+
+        for file_path in tqdm(files_to_scan, desc="Scanning files", unit="file"):
+            self._scan_file(file_path)
 
         generate_html_report(self._findings)
         return self._findings
