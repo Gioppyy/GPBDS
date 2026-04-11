@@ -1,0 +1,12 @@
+{
+  "http_whitelist_domains": [
+    "discord.com",
+    "cdn.discordapp.com",
+    "media.discordapp.net",
+    "github.com",
+    "cfx.re",
+    "forum.cfx.re",
+    "docs.fivem.net",
+    "api.github.com"
+  ]
+}
