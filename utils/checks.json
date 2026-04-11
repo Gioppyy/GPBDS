@@ -1,78 +1,61 @@
 {
-  "rce_critical": {
-    "score": 10,
+  "lua_rce_chain": {
+    "score": 9,
     "severity": "CRITICAL",
+    "patterns": [
+      "loadstring\\s*\\([^)]*(http|PerformHttpRequest|base64|decode)",
+      "assert\\s*\\(\\s*load\\s*\\([^)]*(http|base64)",
+      "_G\\s*\\[\\s*[\"']load[\"']\\s*\\]\\s*\\("
+    ]
+  },
+
+  "lua_dynamic_exec_suspicious": {
+    "score": 6,
+    "severity": "HIGH",
     "patterns": [
       "\\bloadstring\\s*\\(",
       "\\bload\\s*\\(",
-      "assert\\s*\\(\\s*load",
-      "_G\\s*\\[\\s*[\"']load[\"']\\s*\\]",
-      "_ENV\\s*\\[\\s*[\"']load[\"']\\s*\\]",
       "getfenv\\s*\\(",
       "setfenv\\s*\\("
     ]
   },
-    "js_obfuscation_advanced": {
-        "score": 9,
-        "severity": "CRITICAL",
-        "patterns": [
-        "eval\\s*\\(",
-        "Function\\s*\\(\\s*['\\\"]return",
-        "new\\s+Function\\s*\\(",
-        "setTimeout\\s*\\(\\s*['\\\"]",
-        "setInterval\\s*\\(\\s*['\\\"]",
 
-        "String\\.fromCharCode\\s*\\(",
-        "fromCharCode\\s*\\(",
-
-        "atob\\s*\\(",
-        "btoa\\s*\\(",
-
-        "unescape\\s*\\(",
-        "escape\\s*\\(",
-
-        "\\\\x[0-9a-fA-F]{2}",
-        "\\\\u[0-9a-fA-F]{4}",
-        "\\\\u\\{[0-9a-fA-F]+\\}",
-
-        "(\\\\\\d{1,3}){3,}",
-        "(?:0x[0-9a-fA-F]{2,}\\s*,\\s*){5,}",
-
-        "\\bwindow\\s*\\[\\s*['\\\"]eval['\\\"]\\s*\\]",
-        "\\bthis\\s*\\[\\s*['\\\"]eval['\\\"]\\s*\\]",
-
-        "xor\\s*\\(",
-        "\\.split\\s*\\('\\'\\)\\s*\\.reverse",
-        "join\\s*\\(\\s*['\\\"]\\s*['\\\"]\\s*\\)"
-        ]
-    },
-  "network_backdoor": {
-    "score": 8,
-    "severity": "CRITICAL",
-    "patterns": [
-      "RegisterNetEvent",
-      "AddEventHandler",
-      "TriggerServerEvent",
-      "TriggerClientEvent"
-    ]
-  },
-
-  "network_backdoor_suspicious": {
+  "js_eval_chain": {
     "score": 9,
     "severity": "CRITICAL",
     "patterns": [
-      "RegisterNetEvent[^)]*admin",
-      "RegisterNetEvent[^)]*backdoor",
-      "RegisterNetEvent[^)]*inject",
-      "TriggerServerEvent[^)]*execute"
+      "eval\\s*\\(\\s*(atob|decodeURIComponent|String\\.fromCharCode)",
+      "new\\s+Function\\s*\\([^)]*(return|atob|decode)",
+      "setTimeout\\s*\\(\\s*['\"][^'\"]{20,}['\"]"
     ]
   },
 
-  "http_remote": {
-    "score": 6,
+  "js_obfuscation_medium": {
+    "score": 4,
     "severity": "MEDIUM",
     "patterns": [
-      "PerformHttpRequest\\s*\\([^)]*load",
+      "String\\.fromCharCode\\s*\\(",
+      "atob\\s*\\(",
+      "btoa\\s*\\(",
+      "\\\\x[0-9a-fA-F]{2}",
+      "\\\\u[0-9a-fA-F]{4}"
+    ]
+  },
+
+  "network_event_suspicious": {
+    "score": 8,
+    "severity": "HIGH",
+    "patterns": [
+      "RegisterNetEvent\\s*\\([^)]*(admin|backdoor|inject)",
+      "TriggerServerEvent\\s*\\([^)]*(execute|eval|load)"
+    ]
+  },
+
+  "http_remote_exec": {
+    "score": 8,
+    "severity": "HIGH",
+    "patterns": [
+      "PerformHttpRequest\\s*\\([^)]*(load|string|assert)",
       "https?:\\/\\/[^\\s\"']+\\.(lua|txt|dat)\\b"
     ]
   },
@@ -83,128 +66,70 @@
     "patterns": [
       "os\\.execute\\s*\\(",
       "io\\.popen\\s*\\(",
-      "os\\.popen\\s*\\(",
-      "ExecuteCommand\\s*\\(",
-      "RunCommand\\s*\\(",
-      "shell\\.run\\s*\\(",
-      "jit\\.os",
-      "package\\.loadlib"
+      "os\\.popen\\s*\\("
     ]
   },
 
-  "filesystem_abuse": {
-    "score": 6,
-    "severity": "HIGH",
+  "command_exec_with_payload": {
+    "score": 10,
+    "severity": "CRITICAL",
+    "patterns": [
+      "os\\.execute\\s*\\([^)]*(curl|wget|bash|sh)",
+      "io\\.popen\\s*\\([^)]*(curl|wget)"
+    ]
+  },
+
+  "filesystem_suspicious": {
+    "score": 4,
+    "severity": "MEDIUM",
     "patterns": [
       "io\\.open\\s*\\(",
-      "io\\.write\\s*\\(",
       "os\\.remove\\s*\\(",
       "os\\.rename\\s*\\("
     ]
   },
 
-  "credential_leak": {
-    "score": 7,
+  "credential_exfiltration": {
+    "score": 8,
     "severity": "HIGH",
     "patterns": [
-      "discord\\.com\\/api\\/webhooks\\/\\d+\\/[A-Za-z0-9_-]+",
       "Authorization:\\s*Bearer",
-      "sv_licenseKey",
       "mysql://"
     ]
   },
 
-  "array_function_call": {
+  "data_exfiltration": {
     "score": 7,
     "severity": "HIGH",
     "patterns": [
-      "\\[[^\\]]+\\]\\s*\\([^)]*\\)\\s*\\(\\)",
-      "\\[[^\\]]+\\]\\s*\\("
+      "PerformHttpRequest\\s*\\([^)]*(ipify|webhook)",
+      "https?:\\/\\/api\\.ipify\\.org"
     ]
   },
 
-  "obfuscation": {
-    "score": 4,
-    "severity": "LOW",
-    "patterns": [
-      "(\\\\x[0-9a-fA-F]{2}){5,}",
-      "string\\.char\\s*\\(",
-      "string\\.reverse\\s*\\(",
-      "base64",
-      "(\"[^\"]*\"\\s*\\.\\.\\s*){2,}"
-    ]
-  },
-
-  "REMOTE_CODE_EXEC": {
-    "severity": "CRITICAL",
+  "resource_infection": {
     "score": 8,
-    "patterns": [
-      "load\\s*\\(",
-      "loadstring\\s*\\(",
-      "TriggerClientEvent\\s*\\(.*load",
-      "RegisterNetEvent\\s*\\(.*CreateThreadFunction"
-    ]
-  },
-
-  "OS_EXECUTION": {
-    "severity": "CRITICAL",
-    "score": 10,
-    "patterns": [
-      "os\\.execute\\s*\\(",
-      "chmod\\s+[0-9]{3}",
-      "adduser\\s",
-      "passwd\\s",
-      "iptables\\s+-A",
-      "crontab\\s+-l",
-      "apt-get\\s+install"
-    ]
-  },
-
-  "SSH_BACKDOOR": {
-    "severity": "CRITICAL",
-    "score": 10,
-    "patterns": [
-      "ssh\\s+-N\\s+-R",
-      "authorized_keys",
-      "\\.ssh/",
-      "Reverse\\s+Tunnel"
-    ]
-  },
-
-  "DATA_EXFILTRATION": {
     "severity": "HIGH",
-    "score": 6,
-    "patterns": [
-      "discord\\.com/api/webhooks",
-      "pastebin\\.com/api",
-      "api\\.ipify\\.org"
-    ]
-  },
-
-  "CRON_PERSISTENCE": {
-    "severity": "CRITICAL",
-    "score": 10,
-    "patterns": [
-      "crontab",
-      "\\* \\* \\* \\* \\*",
-      "/dev/tcp/"
-    ]
-  },
-
-  "RESOURCE_INFECTION": {
-    "severity": "HIGH",
-    "score": 8,
     "patterns": [
       "GetNumResources\\s*\\(",
       "GetResourcePath\\s*\\(",
-      "installBackdoorToScripts",
-      "setall\\s*\\("
+      "installBackdoorToScripts"
     ]
   },
 
-  "HEX_OBFUSCATION": {
-    "severity": "MEDIUM",
-    "score": 4,
+  "obfuscation_heavy": {
+    "score": 6,
+    "severity": "HIGH",
+    "patterns": [
+      "(\\\\x[0-9a-fA-F]{2}){10,}",
+      "string\\.char\\s*\\(",
+      "string\\.reverse\\s*\\("
+    ]
+  },
+
+  "hex_obfuscation": {
+    "score": 3,
+    "severity": "LOW",
     "patterns": [
       "'[0-9a-fA-F]{2}'\\s*,\\s*'[0-9a-fA-F]{2}'"
     ]
