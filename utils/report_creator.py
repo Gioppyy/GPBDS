@@ -2,47 +2,53 @@ from datetime import datetime
 from pathlib import Path
 import webbrowser
 
+def _build_finding_blocks(findings: list) -> str:
+    blocks = []
+
+    for f in findings:
+        path    = f["path"]
+        sev     = f["severity"]
+        score   = f["score"]
+        matches = f["matches"]
+
+        checks_str = " ".join(m["check"] for m in matches).lower()
+
+        match_rows = []
+        for m in matches:
+            msev    = m["severity"]
+            snippet = m.get("snippet", "")
+            match_rows.append(f"""\
+                <div class="match">
+                    <div class="match-dot {msev}"></div>
+                    <div class="match-check-name">{m['check']}</div>
+                    <div class="match-snippet">{snippet}</div>
+                </div>""")
+
+        matches_html = "\n".join(match_rows)
+        n_matches    = len(matches)
+
+        blocks.append(f"""\
+<div class="finding" data-sev="{sev}" data-path="{path.lower()}" data-checks="{checks_str}">
+    <div class="finding-head">
+        <span class="sev-tag {sev}">{sev}</span>
+        <span class="score-chip">s:{score}</span>
+        <span class="finding-path" title="{path}">{path}</span>
+        <span class="match-count">{n_matches} match{"es" if n_matches != 1 else ""}</span>
+        <span class="chevron">▶</span>
+    </div>
+    <div class="finding-body">
+{matches_html}
+    </div>
+</div>""")
+
+    return "\n".join(blocks)
+
 def generate_html_report(findings):
     if not findings:
         print("✔ No threats found")
         return
 
     template = Path("./utils/template.html").read_text(encoding="utf-8")
-
-    blocks = []
-    for f in findings:
-        block = f"""
-        <div class="finding-card">
-            <div class="finding-header">
-                <div class="path-container">
-                    <div class="path">{f['path']}</div>
-                </div>
-                <div class="score-badge {f['severity']}">
-                    Score: {f['score']} · {f['severity']}
-                </div>
-            </div>
-
-            <div class="finding-content">
-        """
-
-        for m in f["matches"]:
-            block += f"""
-                <div class="match-item" style="border-left-color: var(--{m['severity'].lower()})">
-                    <div class="match-header">
-                        <span class="severity-dot {m['severity']}"></span>
-                        <span class="match-check">{m['check']}</span>
-                    </div>
-                    <div class="snippet">
-                        <pre>{m['snippet']}</pre>
-                    </div>
-                </div>
-            """
-
-        block += """
-            </div>
-        </div>
-        """
-        blocks.append(block)
 
     critical_count = sum(1 for f in findings if f['severity'] == 'CRITICAL')
     high_count = sum(1 for f in findings if f['severity'] == 'HIGH')
@@ -66,7 +72,7 @@ def generate_html_report(findings):
         .replace("{{VERSION}}", "1.0.0") \
         .replace("{{DURATION}}", "N/A") \
         .replace("{{TIMESTAMP}}", datetime.now().strftime("%Y-%m-%d %H:%M:%S")) \
-        .replace("{{FINDINGS}}", "\n".join(blocks))
+        .replace("{{FINDINGS}}", _build_finding_blocks(findings))
 
     reports = Path("reports")
     reports.mkdir(exist_ok=True)
